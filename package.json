@@ -4,8 +4,7 @@
   "description": "Website for AssemblyScript",
   "main": "index.js",
   "scripts": {
-    "start": "npm run dev",
-    "dev": "docz dev",
+    "start": "docz dev",
     "build": "docz build"
   },
   "repository": {
@@ -30,7 +29,7 @@
   },
   "homepage": "https://github.com/AssemblyScript/website#readme",
   "devDependencies": {
-    "docz": "^0.11.2",
+    "docz": "^0.12.5",
     "remark-external-links": "^3.0.0"
   }
 }
