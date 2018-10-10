@@ -1,0 +1,89 @@
+---
+name: Quick Start (Hello World)
+menu: Getting Started
+order: 0
+route: /getting-started/quick-start
+---
+
+# Quick Start (Hello World)
+
+For a quick start, create a new node project with a `package.json` as you normally would and follow these steps:
+
+**Note:** Once AssemblyScript is installed, [there's also asinit](./Using-the-CLI#scaffolding-with-asinit) that can do most of this for you automatically.
+
+Step 1
+------
+
+Install AssemblyScript as a development dependency by pointing npm at the GitHub repository (for now)
+
+```
+$> npm install --save-dev AssemblyScript/assemblyscript
+```
+
+and create a new top-level directory `assembly/` for your AssemblyScript sources
+
+```
+$> mkdir assembly
+```
+
+that contains the following `tsconfig.json`
+
+```json
+{
+  "extends": "../node_modules/assemblyscript/std/assembly.json",
+  "include": [
+    "./**/*.ts"
+  ]
+}
+```
+
+plus the following exemplary `module.ts` entry file:
+
+```ts
+export function add(a: i32, b: i32): i32 {
+  return a + b;
+}
+```
+
+Step 2
+------
+
+Set up a build command by adding the following to your `package.json` in your project's root directory
+
+```json
+  "scripts": {
+    "build": "npm run build:untouched && npm run build:optimized",
+    "build:untouched": "asc assembly/module.ts -t module.untouched.wat -b module.untouched.wasm --validate --sourceMap --measure",
+    "build:optimized": "asc assembly/module.ts -t module.optimized.wat -b module.optimized.wasm --validate --sourceMap --measure --optimize"
+   }
+```
+
+and run
+
+```
+$> npm run build
+```
+
+to compile the entry file to both an untouched and an optimized WebAssembly binary (here: also text format and a source map).
+
+**Note:** If the build fails, it might be necessary (at this point) to `npm install --save-dev ts-node`.
+
+Step 3
+------
+
+Add a new file `module.js` in your project's root directory
+
+```js
+const fs = require("fs");
+module.exports = new WebAssembly.Instance(new WebAssembly.Module(fs.readFileSync(__dirname + "/module.optimized.wasm"), {})).exports;
+```
+
+And that's it! This file allows you to use your WebAssembly module like any other node module, like so:
+
+```js
+var myModule = require("./module.js");
+console.log(myModule.add(1, 2));
+```
+
+See the other pages of the wiki for additional information. Happy coding!
+

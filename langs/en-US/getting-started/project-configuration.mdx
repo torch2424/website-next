@@ -1,0 +1,40 @@
+---
+name: Project Configuration
+menu: Getting Started
+order: 1
+route: /getting-started/project-configuration
+---
+
+# Project Configuration
+
+Placing a `tsconfig.json` with the following contents next to your AssemblyScript sources (ideally in their own directory) will import all relevant types and configuration options. Note that the path to the base configuration file may vary depending on your actual setup.
+
+Targeting WebAssembly only with `asc`
+-------------------------------------
+
+```json
+{
+  "extends": "./node_modules/assemblyscript/std/assembly.json",
+  "include": [
+    "./**/*.ts"
+  ]
+}
+```
+
+Alternatively, `std/assembly.d.ts` can be referenced (does not inherit other important configuration settings).
+
+Targeting both WebAssembly with `asc` and JavaScript with `tsc`
+---------------------------------------------------------------
+
+See also: [Writing portable code](./Writing-portable-code)
+
+```json
+{
+  "extends": "./node_modules/assemblyscript/std/portable.json",
+  "include": [
+    "./**/*.ts"
+  ]
+}
+```
+
+Alternatively, `std/portable.d.ts` can be referenced (does not inherit other important configuration settings).

@@ -1,0 +1,186 @@
+---
+name: CLI Usage
+menu: Getting Started
+order: 2
+route: /getting-started/cli-usage
+---
+
+# CLI Usage
+
+**Contents**
+
+* [Using the compiler](#using-the-compiler)
+* [Scaffolding with asinit](#scaffolding-with-asinit)
+
+Using the compiler
+------------------
+
+Similar to TypeScript's `tsc` compiling to JavaScript, AssemblyScript's `asc` compiles to WebAssembly:
+
+```
+Syntax:   asc [entryFile ...] [options]
+
+Examples: asc hello.ts
+          asc hello.ts -b hello.wasm -t hello.wat
+          asc hello1.ts hello2.ts -b -O > hello.wasm
+
+Options:
+ --version, -v          Prints just the compiler's version and exits.
+ --help, -h             Prints this message and exits.
+ --optimize, -O         Optimizes the module. Also accepts the optimize level:
+
+                         -O     Uses defaults. Equivalent to -O2s
+                         -O0    Equivalent to --optimizeLevel 0
+                         -O1    Equivalent to --optimizeLevel 1
+                         -O2    Equivalent to --optimizeLevel 2
+                         -O3    Equivalent to --optimizeLevel 3
+                         -Oz    Equivalent to -O but with --shrinkLevel 2
+                         -O3s   Equivalent to -O3 with --shrinkLevel 1 etc.
+
+ --optimizeLevel        How much to focus on optimizing code. [0-3]
+ --shrinkLevel          How much to focus on shrinking code size. [0-2, s=1, z=2]
+ --validate, -c         Validates the module using Binaryen. Exits if invalid.
+ --baseDir              Specifies the base directory of input and output files.
+ --outFile, -o          Specifies the output file. File extension indicates format.
+ --binaryFile, -b       Specifies the binary output file (.wasm).
+ --textFile, -t         Specifies the text output file (.wat).
+ --asmjsFile, -a        Specifies the asm.js output file (.js).
+ --idlFile, -i          Specifies the WebIDL output file (.webidl).
+ --tsdFile, -d          Specifies the TypeScript definition output file (.d.ts).
+ --sourceMap            Enables source map generation. Optionally takes the URL
+                        used to reference the source map from the binary file.
+ --noTreeShaking        Disables compiler-level tree-shaking, compiling everything.
+ --noDebug              Disables maintaining of debug information in binaries.
+ --noAssert             Replaces assertions with just their value without trapping.
+ --noEmit               Performs compilation as usual but does not emit code.
+ --noMemory             Does not set up a memory. Useful for low-level WebAssembly.
+ --importMemory         Imports the memory instance provided by the embedder.
+ --memoryBase           Sets the start offset of compiler-generated static memory.
+ --importTable          Imports the function table instance provided by the embedder.
+ --noLib                Does not include the shipped standard library.
+ --lib                  Adds one or multiple paths to custom library components and
+                        uses exports of all top-level files at this path as globals.
+ --use, -u              Aliases a global object under another name, e.g., to switch
+                        the default 'Math' implementation used: --use Math=JSMath
+ --trapMode             Sets the trap mode to use.
+
+                         allow  Allow trapping operations. This is the default.
+                         clamp  Replace trapping operations with clamping semantics.
+                         js     Replace trapping operations with JS semantics.
+
+ --runPasses            Specifies additional Binaryen passes to run after other
+                        optimizations, if any. See: Binaryen/src/passes/pass.cpp
+ --feature              Enables additional (experimental) WebAssembly features.
+
+                         sign-extension  Enables sign-extension operations
+                         mutable-global  Enables mutable global imports and exports
+
+ --transform           Specifies the path to a custom transform to 'require'.
+
+ --measure              Prints measuring information on I/O and compile times.
+```
+
+Scaffolding with asinit
+-----------------------
+
+Once AssemblyScript [has been installed](https://github.com/AssemblyScript/assemblyscript#installation), it provides a handly little tool to scaffold a new project:
+
+```
+Syntax: asinit [project directory]
+
+Sets up a new AssemblyScript project or updates an existing one.
+
+For example, to create a new project in the current directory:
+
+  asinit .
+```
+
+Example output:
+
+```
+This command will make sure that the following files exist in the project
+directory '/home/user/mymodule':
+
+  ./assembly
+  Directory holding the AssemblyScript sources being compiled to WebAssembly.
+
+  ./assembly/tsconfig.json
+  TypeScript configuration inheriting recommended AssemblyScript settings.
+
+  ./assembly/index.ts
+  Exemplary entry file being compiled to WebAssembly to get you started.
+
+  ./build
+  Build artifact directory where compiled WebAssembly files are stored.
+
+  ./build/.gitignore
+  Git configuration that excludes compiled binaries from source control.
+
+  ./index.js
+  Main file loading the WebAssembly module and exporting its exports.
+
+  ./package.json
+  Package info containing the necessary commands to compile to WebAssembly.
+
+The command will try to update existing files to match the correct settings
+for this instance of the compiler in '/home/user/mymodule/node_modules/assemblyscript'.
+
+Do you want to proceed? [Y/n]
+
+- Making sure that the project directory exists...
+  Exists: /home/user/mymodule
+
+- Making sure that the 'assembly' directory exists...
+  Created: /home/user/mymodule/assembly
+
+- Making sure that 'assembly/tsconfig.json' is set up...
+  Created: /home/user/mymodule/assembly/tsconfig.json
+
+- Making sure that 'assembly/index.ts' exists...
+  Created: /home/user/mymodule/assembly/index.ts
+
+- Making sure that the 'build' directory exists...
+  Created: /home/user/mymodule/build
+
+- Making sure that 'build/.gitignore' is set up...
+  Created: /home/user/mymodule/build/.gitignore
+
+- Making sure that 'package.json' contains the build commands...
+  Created: /home/user/mymodule/package.json
+
+- Making sure that 'index.js' exists...
+  Created: /home/user/mymodule/index.js
+
+Done!
+
+To edit the entry file, open 'assembly/index.ts' in your editor of choice.
+Create as many additional files as necessary and use them as imports.
+
+To build the entry file to WebAssembly when you are ready, run:
+
+  npm run asbuild
+
+Running the command above creates the following binaries incl. their respective
+text format representations and source maps:
+
+  ./build/untouched.wasm
+  ./build/untouched.wasm.map
+  ./build/untouched.wat
+
+  ^ The untouched WebAssembly module as generated by the compiler.
+    This one matches your sources exactly, without any optimizations.
+
+  ./build/optimized.wasm
+  ./build/optimized.wasm.map
+  ./build/optimized.wat
+
+  ^ The optimized WebAssembly module using default optimization settings (-O2s).
+    You can change the optimization settings in 'package.json'.
+
+Additional documentation is available at the AssemblyScript wiki:
+
+  https://github.com/AssemblyScript/assemblyscript/wiki
+
+Have a nice day!
+```
+
