@@ -1,0 +1,36 @@
+{
+  "name": "assemblyscript-website",
+  "version": "1.0.0",
+  "description": "Website for AssemblyScript",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "docz dev",
+    "build": "docz build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AssemblyScript/website.git"
+  },
+  "keywords": [
+    "website",
+    "assemblyscript",
+    "web",
+    "assembly",
+    "webassembly",
+    "wasm",
+    "docz",
+    "docs",
+    "documentation"
+  ],
+  "author": "The AssemblyScript Authors",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/AssemblyScript/website/issues"
+  },
+  "homepage": "https://github.com/AssemblyScript/website#readme",
+  "devDependencies": {
+    "docz": "^0.11.2",
+    "remark-external-links": "^3.0.0"
+  }
+}

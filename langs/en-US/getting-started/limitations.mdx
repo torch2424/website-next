@@ -1,0 +1,58 @@
+---
+name: Limitations
+menu: Getting Started
+order: 3
+route: /getting-started/limitations
+---
+
+# Limitations
+
+Compiling untyped JavaScript to WebAssembly doesn't make sense because it would ultimately result in shipping another (slower) JavaScript runtime that runs within a JavaScript runtime.
+
+Instead, AssemblyScript focuses on where WebAssembly excels and does not support falling back to super dynamic features of JavaScript that cannot be efficiently compiled ahead of time:
+
+Mandatory types
+---------------
+
+* No `any` or `undefined`.
+* No union types.
+* Nullable types must be reference types, annotated as `ClassType | null`.
+
+Limited type inference
+----------------------
+
+* If there is no initializer expression, the type must be annotated.
+* If there is an initializer expression:
+
+  * If the initializer is an integer literal, `i32` is assumed when it fits into 32-bits, otherwise `i64` is assumed.
+  * If the initializer is a float literal, `f64` is assumed.
+  * Otherwise the initializer is evaluated to obtain its type.
+
+Other
+-----
+
+* Optional function parameters require an initializer
+* `const` globals and locals require a compile-time constant initializer and otherwise fall back to a mutable variable.
+* In JavaScript, static fields on classes are always evaluated when defined, whereas in AssemblyScript, built-in tree shaking lazily compiles static fields when referenced.
+* When calling an exported variable-length arguments WebAssembly function from JS, e.g.
+
+  ```ts
+  export function add(a: i32 = 1, b: i32 = 2): i32 {
+    return a + b;
+  }
+  ```
+
+  the actual number of parameters of the call must be specified explicitly because there is no equivalent to `arguments.length` on the WebAssembly side. Example:
+
+  ```js
+  exports._setargc(0);
+  exports.sum(); // 3
+
+  exports._setargc(1);
+  exports.sum(2); // 4
+
+  exports._setargc(2);
+  exports.sum(2, 3); // 5
+  ```
+
+See also: [Status / Roadmap](https://github.com/AssemblyScript/assemblyscript/wiki/Status-and-Roadmap)
