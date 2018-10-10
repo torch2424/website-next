@@ -1,0 +1,188 @@
+---
+name: WebAssembly to TypeScript Cheat Sheet
+menu: Documentation
+order: 4
+route: /documentation/wasm-to-typescript
+---
+
+# WebAssembly to TypeScript Cheat Sheet
+
+The compiler guarantees that certain expressions and statements compile to specific WebAssembly instructions before optimizations.
+
+**Note** that the code samples below make heavy use of type assertions for demonstration purposes. These can be omitted in already matching type contexts.
+
+## Constants
+
+WebAssembly | TypeScript
+------------|-----------
+i32.const   | `<i32>42`
+i64.const   | `<i64>42`
+f32.const   | `<f32>42`
+f64.const   | `<f64>42`
+
+## 32-bit integer operations
+
+WebAssembly | TypeScript
+------------|-----------
+i32.add     | `<i32>left + <i32>right`
+i32.sub     | `<i32>left - <i32>right`
+i32.mul     | `<i32>left * <i32>right`
+i32.div_s   | `<i32>left / <i32>right`
+i32.div_u   | `<u32>left / <u32>right`
+i32.rem_s   | `<i32>left % <i32>right`
+i32.rem_u   | `<u32>left % <u32>right`
+i32.and     | `<i32>left & <i32>right`
+i32.or      | `<i32>left \| <i32>right`
+i32.xor     | `<i32>left ^ <i32>right`
+i32.shl     | `<i32>left << right`
+i32.shr_s   | `<i32>left >> right`
+i32.shr_u   | `<u32>left >> right` or `<i32>left >>> right`
+i32.rotl    | `rotl<i32>(value, shift)`
+i32.rotr    | `rotr<i32>(value, shift)`
+i32.eq      | `<i32>left == <i32>right`
+i32.ne      | `<i32>left != <i32>right`
+i32.lt_s    | `<i32>left < <i32>right`
+i32.lt_u    | `<u32>left < <u32>right`
+i32.le_s    | `<i32>left <= <i32>right`
+i32.le_u    | `<u32>left <= <u32>right`
+i32.gt_s    | `<i32>left > <i32>right`
+i32.gt_u    | `<u32>left > <u32>right`
+i32.ge_s    | `<i32>left >= <i32>right`
+i32.ge_u    | `<u32>left >= <u32>right`
+i32.clz     | `clz<i32>(value)`
+i32.ctz     | `ctz<i32>(value)`
+i32.popcnt  | `popcnt<i32>(value)`
+i32.eqz     | `!<i32>value`
+
+## 64-bit integer operations
+
+Like 32-bit integer operations, but using `i64` and `u64`.
+
+## 32-bit floating point operations
+
+WebAssembly  | TypeScript
+-------------|-----------
+f32.add      | `<f32>left + <f32>right`
+f32.sub      | `<f32>left - <f32>right`
+f32.mul      | `<f32>left * <f32>right`
+f32.div      | `<f32>left / <f32>right`
+f32.abs      | `abs<f32>(value)`
+f32.neg      | `-<f32>value`
+f32.copysign | `copysign<f32>(x, y)`
+f32.ceil     | `ceil<f32>(value)`
+f32.floor    | `floor<f32>(value)`
+f32.trunc    | `trunc<f32>(value)`
+f32.nearest  | `nearest<f32>(value)`
+f32.eq       | `<f32>left == <f32>right`
+f32.ne       | `<f32>left != <f32>right`
+f32.lt       | `<f32>left < <f32>right`
+f32.le       | `<f32>left <= <f32>right`
+f32.gt       | `<f32>left > <f32>right`
+f32.ge       | `<f32>left >= <f32>right`
+f32.sqrt     | `sqrt<f32>(value)`
+f32.min      | `min<f32>(x, y)`
+f32.max      | `max<f32>(x, y)`
+
+## 64-bit floating point operations
+
+Like 32-bit floating point operations, but using `f64`.
+
+## Conversions
+
+WebAssembly         | TypeScript
+--------------------|-----------
+i32.wrap/i64        | `<i32><i64>value`
+i32.trunc_s/f32     | `<i32><f32>value`
+i32.trunc_s/f64     | `<i32><f64>value`
+i32.trunc_u/f32     | `<u32><f32>value`
+i32.trunc_u/f64     | `<u32><f64>value`
+i32.reinterpret/f32 | `reinterpret<i32>(<f32>value)`
+i64.extend_s/i32    | `<i64><i32>value`
+i64.extend_u/i32    | `<i64><u32>value`
+i64.trunc_s/f32     | `<i64><f32>value`
+i64.trunc_s/f64     | `<i64><f64>value`
+i64.trunc_u/f32     | `<u64><f32>value`
+i64.trunc_u/f64     | `<u64><f64>value`
+i64.reinterpret/f64 | `reinterpret<i64>(<f64>value)`
+f32.demote/f64      | `<f32><f64>value`
+f32.convert_s/i32   | `<f32><i32>value`
+f32.convert_u/i32   | `<f32><u32>value`
+f32.convert_s/i64   | `<f32><i64>value`
+f32.convert_u/i64   | `<f32><u64>value`
+f32.reinterpret/i32 | `reinterpret<f32>(<i32>value)`
+f64.promote/f32     | `<f64><f32>value`
+f64.convert_s/i32   | `<f64><i32>value`
+f64.convert_u/i32   | `<f64><u32>value`
+f64.convert_s/i64   | `<f64><i64>value`
+f64.convert_u/i64   | `<f64><u64>value`
+f64.reinterpret/i64 | `reinterpret<f64>(<i64>value)`
+
+## Control flow
+
+WebAssembly | TypeScript
+------------|-----------
+nop         | `;`
+block       | `expression1, expression2` / `{ statement1; statement2; }`
+loop        | `while (condition) statement` / `do statement; while (condition)`
+if          | `if (condition) statement`
+else        | `else statement`
+br          | `break` / `continue`
+br_if       | `case value:`
+br_table    | `switch (condition)` (after optimizations)
+return      | `return` / `return value`
+unreachable | `unreachable()`
+select      | `select<T>(<T>left, <T>right, condition)`
+drop        | `void expression` / `expression;`
+
+## Calls
+
+WebAssembly   | TypeScript
+--------------|-----------
+call          | `someFunc(...)`
+call_indirect | `someVar(...)`
+
+## Memory accesses
+
+WebAssembly    | TypeScript
+---------------|-----------
+i32.load8_s    | `<i32>load<i8>(ptr)`
+i32.load8_u    | `<i32>load<u8>(ptr)`
+i32.load16_s   | `<i32>load<i16>(ptr)`
+i32.load16_u   | `<i32>load<u16>(ptr)`
+i32.load       | `<i32>load<i32>(ptr)`
+i64.load8_s    | `<i64>load<i8>(ptr)`
+i64.load8_u    | `<i64>load<u8>(ptr)`
+i64.load16_s   | `<i64>load<i16>(ptr)`
+i64.load16_u   | `<i64>load<u16>(ptr)`
+i64.load32_s   | `<i64>load<i32>(ptr)`
+i64.load32_u   | `<i64>load<u32>(ptr)`
+i64.load       | `<i64>load<i64>(ptr)`
+f32.load       | `load<f32>(ptr)`
+f64.load       | `load<f64>(ptr)`
+i32.store8     | `store<i8>(ptr, <i32>value)`
+i32.store16    | `store<i16>(ptr, <i32>value)`
+i32.store      | `store<i32>(ptr, <i32>value)`
+i64.store8     | `store<i8>(ptr, <i64>value)`
+i64.store16    | `store<i16>(ptr, <i64>value)`
+i64.store32    | `store<i32>(ptr, <i64>value)`
+i64.store      | `store<i64>(ptr, <i64>value)`
+f32.store      | `store<f32>(ptr, value)`
+f64.store      | `store<f64>(ptr, value)`
+
+`load` and `store` also accept an additional argument to indicate the offset immediate of the emitted instruction. This argument differs from other arguments in that it must evaluate to a compile-time constant value, that is either a literal or a reference to a global or local constant variable.
+
+## Host operations
+
+WebAssembly    | TypeScript
+---------------|-----------
+memory.size    | `memory.size()`
+memory.grow    | `memory.grow(<i32>pages)`
+
+## Variables
+
+WebAssembly               | TypeScript
+--------------------------|-----------
+local $aLocal i32         | `var aLocal: i32` (function-level, `let` differs)
+global $aGlobal i32       | `const aGlobal: i32` (top-level)
+global $aGlobal (mut i32) | `var aGlobal: i32` (top-level)
+

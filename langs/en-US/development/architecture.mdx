@@ -1,0 +1,33 @@
+---
+name: Architecture
+menu: Development
+order: 2
+route: /development/architecture
+---
+
+# Architecture
+
+Compilation
+-----------
+
+The compiler's structure is relatively conservative.
+
+Provided with a source file, its text is [tokenized](https://github.com/AssemblyScript/assemblyscript/blob/master/src/tokenizer.ts) and [parsed](https://github.com/AssemblyScript/assemblyscript/blob/master/src/parser.ts) into an [abstract syntax tree](https://github.com/AssemblyScript/assemblyscript/blob/master/src/ast.ts). Syntax-level checking is performed here.
+
+Once all referenced source files have been parsed, [a program](https://github.com/AssemblyScript/assemblyscript/blob/master/src/program.ts) is constructed and initialized from the AST. Sanity checking is performed here. The program and its elements then act as the intermediate representation in code generation, holding all the information necessary to resolve types, identifiers, property accesses etc.
+
+Afterwards, [compilation](https://github.com/AssemblyScript/assemblyscript/blob/master/src/compiler.ts) of the program's elements to a [Binaryen module](https://github.com/AssemblyScript/assemblyscript/blob/master/src/module.ts) is performed. Final checking of individual statements and expressions is performed here. By default, compilation starts at entry file exports and then traverses reachable program elements (also known as "tree shaking"). Doing so on compiler level provides a significant speed advantage because dead code isn't compiled at all, but also has the drawback that dead code isn't fully checked. Yet, specifying `--noEmit --noTreeShaking` checks everything without generating code.
+
+The resulting module may then be validated, optimized and emitted in all of Binaryen's various output formats (textual `.wat`, binary `.wasm`, asm.js `.js`).
+
+API
+---
+
+The compiler itself exports a relatively low-level [C-like API](https://github.com/AssemblyScript/assemblyscript/blob/master/src/index.ts) that provides everything necessary to perform compilation in interchangeable JS/WASM environments.
+
+The low-level API is used by [asc](https://github.com/AssemblyScript/assemblyscript/blob/master/bin/asc.js), a compiler frontend for node, which exposes [its CLI API](https://github.com/AssemblyScript/assemblyscript/tree/master/bin#api) programmatically as well.
+
+Standard library
+----------------
+
+While not fully figured out yet, standard library components reside in the [std](https://github.com/AssemblyScript/assemblyscript/tree/master/std) folder and are available in two variations, `assembly` for targeting WebAssembly with `asc` and `portable` for targeting JavaScript with `tsc`. The portable standard library basically declares what's already in the environment in an AssemblyScript-compatible way while the assembly standard library reimplements the same functionality in AssemblyScript for WebAssembly.

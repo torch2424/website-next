@@ -1,0 +1,132 @@
+---
+name: Memory Layout & Management
+menu: Documentation
+order: 5
+route: /documentation/memory-layout-and-management
+---
+
+# Memory Layout & Management
+
+Similar to other languages that use linear memory, all data in AssemblyScript is located at a specific memory offset. There are two parts of memory that the compiler is aware of:
+
+Static memory
+=============
+
+The compiler will leave some initial space to take care of the `null` pointer, followed by static memory, if any static data segments are present.
+
+For example, whenever a constant string or array literal is encountered while compiling a source, the compiler creates a static memory segment from it.
+
+### Strings
+
+For example
+
+```ts
+const str = "Hello";
+```
+
+will be compiled to an immutable global variable named `str` that is initialized with the offset of the `"Hello"` string in memory. Strings are encoded as UTF-16LE in AssemblyScript, and are prefixed with their length (in character codes) as a 32-bit integer.
+
+```
+╒════════════════════ String layout (32-bit) ═══════════════════╕
+   3                   2                   1
+ 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0  bits
+├─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┤
+│   .length       number of UTF-16LE character codes            │
+├───────────────────────────────┬───────────────────────────────┤ ─┐
+│         .charCodeAt(0)        │        .charCodeAt(1)         │ N=.length 16-bit
+├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤ character codes
+│         .charCodeAt(2)        │        .charCodeAt(3) ...     │
+```
+
+Note that the length uses little endian byte order as well. Hence, the string `"Hello"` would look like this:
+
+```
+05 00 00 00   .length
+48 00         H
+65 00         e
+6C 00         l
+6C 00         l
+6F 00         o
+```
+
+In this case, `str` points right at the `05` byte. When calling a JavaScript import like
+
+```ts
+declare function log(str: string): void;
+
+log(str);
+```
+
+the JavaScript side receives the pointer to the string that is stored in the `str` global.
+
+### Arrays
+
+In AssemblyScript, all arrays store their contents in an `ArrayBuffer` behind the scenes. These can be accessed naturally on typed arrays, but are private on normal arrays. For example in 32-bit WebAssembly:
+
+```
+╒════════════════════ Array<T> layout (32-bit) ═════════════════╕
+   3                   2                   1
+ 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0  bits
+├─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┤
+│   .buffer       points at the backing ArrayBuffer (private)   │
+├───────────────────────────────────────────────────────────────┤
+│   .length       number of array elements of size sizeof<T>()  │
+└───────────────────────────────────────────────────────────────┘
+```
+
+```
+╒═══════════════════ TypedArray layout (32-bit) ════════════════╕
+   3                   2                   1
+ 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0  bits
+├─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┤
+│   .buffer       points at the backing ArrayBuffer             │
+├───────────────────────────────────────────────────────────────┤
+│   .byteOffset   offset in bytes from the start of .buffer     │
+├───────────────────────────────────────────────────────────────┤
+│   .byteLength   length in bytes from the start of .buffer     │
+└───────────────────────────────────────────────────────────────┘
+```
+
+```
+╒══════════════════ ArrayBuffer layout (32-bit) ════════════════╕
+   3                   2                   1
+ 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0  bits
+├─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┤
+│   .byteLength   number of bytes                               │
+├───────────────────────────────────────────────────────────────┤
+│        0        free space due to alignment                   │
+├───────────────┬───────────────┬───────────────┬───────────────┤ ─┐
+│       [0]     │      [1]      │      [2]      │      [3]      │ N=.byteLength
+├ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ┼ ─ ─ ─ ─ ─ ─ ─ ┤ 8-bit bytes
+│       [4]     │      [5]      │      [6]      │      [7] ...  │
+```
+
+Heap
+====
+
+Dynamically allocated memory goes to the heap that begins right after static memory. The heap can be partitioned in various ways, depending on the memory allocator you have chosen. You can implement one yourself (the built-in `HEAP_BASE` global points at the first 8 byte aligned offset after static memory) or use one of the following allocators provided by the standard library:
+
+* **allocator/arena**<br />
+  A simple arena-allocator that accumulates memory with no mechanism to free specific segments. Instead, it provides a `memory.reset` function that resets the counting memory offset to its initial value and starts all over again. Because of its simple design, it's both the smallest and fastest dynamic allocator.
+
+* **allocator/tlsf**<br />
+  An implementation of the [TLSF](http://www.gii.upv.es/tlsf/) (Two Level Segregate Fit) memory allocator, a general purpose dynamic allocator specifically designed to meet real-time requirements. Compiles to about 1KB of WASM.
+
+* **allocator/buddy**<br />
+  A port of evanw's [Buddy Memory Allocator](https://github.com/evanw/buddy-malloc), an experimental allocator that spans the address range with a binary tree. Compiles to about 1KB of WASM.
+
+A memory allocator from the standard library can be included in your project through importing it, like so:
+
+```ts
+import "allocator/tlsf";
+
+var ptr = memory.allocate(64);
+// do something with ptr ...
+
+// ... and free it again
+memory.free(ptr);
+```
+
+Standard library allocators will automatically grow the module's memory when required and always align to 8 bytes. Maximum allocation size is 1GB. If memory is exceeded, a trap (exception on the JavaScript side) will occur.
+
+*To be continued...*

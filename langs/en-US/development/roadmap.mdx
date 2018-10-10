@@ -1,0 +1,47 @@
+---
+name: Status / Roadmap
+menu: Development
+order: 0
+route: /development/roadmap
+---
+
+# Status / Roadmap
+
+Current state of development is tracked in [GitHub projects](https://github.com/AssemblyScript/assemblyscript/projects).
+
+High level status
+-----------------
+
+* Most of TypeScript's AOT-compatible syntax is supported
+* Manual memory management is in but GC remains to do
+* Classes are still wonky when it comes to the details
+* Standard library is very basic and needs a lot of work
+* No exception support yet, waiting for [WebAssembly/exception-handling](https://github.com/WebAssembly/exception-handling) to land
+* We need more tests (pretty sure this will remain here)
+
+High level goals
+----------------
+
+- [ ] Get a memory manager and GC combo up and running
+  - [x] Memory manager
+  - [ ] GC
+- [ ] Get a standard library up that "just works" (where AOT-compatible)
+- [ ] Improve linking, e.g. with C, based on what's supported by common tools
+- [ ] Compile the AssemblyScript compiler to WebAssembly using itself
+- [ ] Provide tools to automatically generate glue code and definitions
+
+And, of course, keep up with the state of WebAssembly, most notably at this point:
+
+Proposal | Phase | Status
+---------|-------|--------
+[Sign Extension Operations](https://github.com/WebAssembly/sign-extension-ops) | implementation | --feature sign-extension
+[Mutable Globals](https://github.com/WebAssembly/mutable-global) | implementation | --feature mutable-global
+[Non-trapping float-to-int Conversions](https://github.com/WebAssembly/nontrapping-float-to-int-conversions) | implementation |
+[Reference Types](https://github.com/WebAssembly/reference-types) | implementation |
+[Multi-value](https://github.com/WebAssembly/multi-value) | implementation |
+[Bulk Memory Operations](https://github.com/WebAssembly/bulk-memory-operations) | proposal |
+[Exception handling](https://github.com/WebAssembly/exception-handling) | proposal |
+[Host Bindings](https://github.com/WebAssembly/host-bindings) | proposal |
+[Threads](https://github.com/WebAssembly/threads) | proposal |
+[GC](https://github.com/WebAssembly/gc) | proposal |
+

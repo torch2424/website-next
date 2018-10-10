@@ -6,7 +6,7 @@ export default {
   base: '/',
   title: 'AssemblyScript',
   description: 'AssemblyScript - A TypeScript to WebAssembly compiler 🚀',
-  ordering: 'descending',
+  ordering: 'ascending',
   propsParser: false,
   indexHtml: './index.html',
   htmlContext: {

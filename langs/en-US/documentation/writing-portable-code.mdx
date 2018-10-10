@@ -1,0 +1,88 @@
+---
+name: Writing Portable Code
+menu: Documentation
+order: 3
+route: /documentation/writing-portable-code
+---
+
+# Writing Portable Code
+
+When targeting both WebAssembly with `asc` and JavaScript with `tsc`, there are a few semantic differences to take care of.
+
+Explicit conversions
+--------------------
+
+While `asc` understands the meaning of
+
+```ts
+// non-portable
+let someFloat: f32 = 1.5;
+let someInt: i32 = <i32>someFloat;
+```
+
+and then inserts the correct conversion steps, `tsc` does not because all numeric types are just aliases of `number`. Hence, when targeting JavaScript with `tsc`, the above will result in
+
+```js
+// js
+var someFloat = 1.5;
+var someInt = someFloat;
+```
+
+which is obviously wrong. To account for this, explicit conversions can be inserted, resulting in actually portable code. For example
+
+```ts
+// portable
+let someFloat: f32 = 1.5;
+let someInt: i32 = (<i32>someFloat) | 0;
+```
+
+will result in
+
+```js
+// js
+var someFloat = 1.5;
+var someInt = 1.5 | 0;
+```
+
+which is correct.
+
+Additionally, an equally named portable conversion function is present for each built-in type that transforms any other built-in type to a value of the target type:
+
+```ts
+// using a portable conversion function
+let someFloat: f32 = 1.5;
+let someInt: i32 = i32(someFloat);
+```
+
+Overflows
+---------
+
+Likewise, again because `asc` knows the meaning but `tsc` does not, overflows must be handled explicitly:
+
+```ts
+// non-portable
+let someU8: u8 = 255;
+let someOtherU8: u8 = someU8 + 1;
+```
+
+```ts
+// portable
+let someU8: u8 = 255;
+let someOtherU8: u8 = (someU8 + 1) & 0xff;
+```
+
+```ts
+// using a portable conversion function
+let someU8: u8 = 255;
+let someOtherU8: u8 = u8(someU8 + 1);
+```
+
+Non portable operations
+-----------------------
+
+In JavaScript, all numeric values are IEEE754 doubles that cannot represent the full range of values fitting in a 64-bit integer ([max. safe integer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER) is 2^53-1). Hence `i64` and `u64` are not portable and not present in `std/portable.d.ts`. There are several ways to deal with this. One is to use an i64 polyfill like [in this example](https://github.com/AssemblyScript/assemblyscript/tree/master/examples/i64-polyfill).
+
+Other than that, some generic built-in functions do not support the full range of type arguments. For example:
+
+* **load**<`T = u8`>(offset: `usize`): `T` - and - **store**<`T = u8`>(offset: `usize`, value: `T`): `void`<br />
+  are limited to `u8` because the type argument cannot be evaluated in JS.

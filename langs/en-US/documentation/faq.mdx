@@ -1,0 +1,18 @@
+---
+name: Questions & Answers
+menu: Documentation
+order: 7
+route: /documentation/debugging
+---
+
+# Questions & Answers
+
+A collection of answers to questions that appeared over time.
+
+### What's the difference between an `if/else` and a `select`?
+
+Semantically, a `select` differs from an `if/else` in that both alternatives are always executed, then picking one of them depending on the condition. So if one side has side effects, it is going to happen regardless of the condition. Performance-wise, a `select` (conditional move, works similar to a switch) is expected to be faster than an `if/else` where the condition is random (that is, branch prediction is not going to perform well) and the operands are cheap. An `if/else` where branch prediction is doing well, for example where checking a configuration value that is always the same, is expected to be fastest.
+
+### Does it support a `main` function?
+
+Yes: By default, if no exported `main` function is present, any top-level logic is executed on module instantiation. If an exported `main` function, that is not generic or declared, is present, the compiler does not emit a `(start ...)` entrypoint and instead executes top-level statements when `main` is called.

@@ -1,0 +1,197 @@
+---
+name: Built-in Functions
+menu: Documentation
+order: 2
+route: /documentation/built-in-functions
+---
+
+# Built-in Functions
+
+To provide direct (compile to opcode) access to native WebAssembly operations, the following functions plus a few TS/JS-like constants are provided in the global scope:
+
+Context-sensitive constants
+----
+
+* **NaN**: `f32 | f64`<br />
+  NaN (not a number) as a 32-bit or 64-bit float depending on context. Compiles to a constant.
+
+* **Infinity**: `f32 | f64`<br />
+  Positive infinity as a 32-bit or 64-bit float depending on context. Compiles to a constant.
+
+Compile-time type checks
+----
+
+* **isInteger**<`T`>(value?: `T`): `bool`<br />
+  Tests if the specified type *or* expression is of an integer type and not a reference. Compiles to a constant.
+
+* **isFloat**<`T`>(value?: `T`): `bool`<br />
+  Tests if the specified type *or* expression is of a float type. Compiles to a constant.
+
+* **isSigned**<`T`>(value?: `T`): `bool`<br />
+  Tests if the specified type *or* expression can represent negative numbers. Compiles to a constant.
+
+* **isReference**<`T`>(value?: `T`): `bool`<br />
+  Tests if the specified type *or* expression is of a reference type. Compiles to a constant.
+
+* **isString**<`T`>(value?: `T`): `bool`<br />
+  Tests if the specified type *or* expression can be used as a string. Compiles to a constant.
+
+* **isArray**<`T`>(value?: `T`): `bool`<br />
+  Tests if the specified type *or* expression can be used as an array. Compiles to a constant.
+
+* **isDefined**(expression: `*`): `bool`<br />
+  Tests if the specified expression resolves to a defined element. Compiles to a constant.
+
+* **isConstant**(expression: `*`): `bool`<br />
+  Tests if the specified expression evaluates to a constant value. Compiles to a constant.
+
+* **sizeof**<`T`>(): `usize`<br />
+  Determines the byte size of the specified core or class type. Compiles to a constant.
+  
+* **offsetof**<`T`>(fieldName?: `string`): `usize`<br />
+  Determines the offset of the specified field within the given class type. Returns the class type's end offset if field name has been omitted. Compiles to a constant.
+
+* **alignof**<`T`>(): `usize`<br />
+  Determines the alignment (log2) of the specified underlying core type. Compiles to a constant.
+
+**Note** that `constantOffset` arguments must be compile-time constants (`const` global or local). Similarly, `fieldName` arguments must be string literals.
+
+**Note** that whenever the compiler spots a constant condition, it will automatically eliminate untaken branches and not attempt to compile them. For example, if a generic function is intended to work with both integers and strings with just a few statements differing, a compile-time type check with a constant condition on an if-then-else statement can be utilized to make it behave differently in parts depending on the actual type argument:
+
+```ts
+function doSomething<T>(a: T): T {
+  if (isString<T>()) {
+    ... // eliminated if T is not a string
+  } else {
+    ... // eliminated if T is a string
+  }
+}
+```
+
+Math
+----
+
+* **isNaN**<`T = f32 | f64`>(value: `T`): `bool`<br />
+  Tests if a 32-bit or 64-bit float is `NaN`.
+
+* **isFinite**<`T = f32 | f64`>(value: `T`): `bool`<br />
+  Tests if a 32-bit or 64-bit float is finite, that is not `NaN` or +/-`Infinity`.
+
+* **clz**<`T = i32 | i64`>(value: `T`): `T`<br />
+  Performs the sign-agnostic count leading zero bits operation on a 32-bit or 64-bit integer. All zero bits are considered leading if the value is zero.
+
+* **ctz**<`T = i32 | i64`>(value: `T`): `T`<br />
+  Performs the sign-agnostic count tailing zero bits operation on a 32-bit or 64-bit integer. All zero bits are considered trailing if the value is zero.
+
+* **popcnt**<`T = i32 | i64`>(value: `T`): `T`<br />
+  Performs the sign-agnostic count number of one bits operation on a 32-bit or 64-bit integer.
+
+* **rotl**<`T = i32 | i64`>(value: `T`, shift: `T`): `T`<br />
+  Performs the sign-agnostic rotate left operation on a 32-bit or 64-bit integer.
+
+* **rotr**<`T = i32 | i64`>(value: `T`, shift: `T`): `T`<br />
+  Performs the sign-agnostic rotate right operation on a 32-bit or 64-bit integer.
+
+* **abs**<`T = i32 | i64 | f32 | f64`>(value: `T`): `T`<br />
+  Computes the absolute value of an integer or float.
+
+* **max**<`T = i32 | i64 | f32 | f64`>(left: `T`, right: `T`): `T`<br />
+  Determines the maximum of two integers or floats. If either operand is `NaN`, returns `NaN`.
+
+* **min**<`T = i32 | i64 | f32 | f64`>(left: `T`, right: `T`): `T`<br />
+  Determines the minimum of two integers or floats. If either operand is `NaN`, returns `NaN`.
+
+* **ceil**<`T = f32 | f64`>(value: `T`): `T`<br />
+  Performs the ceiling operation on a 32-bit or 64-bit float.
+
+* **floor**<`T = f32 | f64`>(value: `T`): `T`<br />
+  Performs the floor operation on a 32-bit or 64-bit float.
+
+* **copysign**<`T = f32 | f64`>(x: `T` , y: `T`): `T`<br />
+  Composes a 32-bit or 64-bit float from the magnitude of `x` and the sign of `y`.
+
+* **nearest**<`T = f32 | f64`>(value: `T`): `T`<br />
+  Rounds to the nearest integer tied to even of a 32-bit or 64-bit float.
+
+* **reinterpret**<`T = i32 | i64 | f32 | f64`>(value: `*`): `T`<br />
+  Reinterprets the bits of the specified value as type `T`. Valid reinterpretations are u32/i32 to/from f32 and u64/i64 to/from f64.
+
+* **sqrt**<`T = f32 | f64`>(value: `T`): `T`<br />
+  Calculates the square root of a 32-bit or 64-bit float.
+
+* **trunc**<`T = f32 | f64`>(value: `T`): `T`<br />
+  Rounds to the nearest integer towards zero of a 32-bit or 64-bit float.
+
+Memory access
+-------------
+
+* **load**<`T`>(ptr: `usize`, constantOffset?: `usize`): `T`<br />
+  Loads a value of the specified type from memory. Equivalent to dereferncing a pointer in other languages.
+
+* **store**<`T`>(ptr: `usize`, value: `T`, constantOffset?: `usize`): `void`<br />
+  Stores a value of the specified type to memory. Equivalent to dereferencing a pointer in other languages when assigning a value.
+
+Control flow
+------------
+
+* **select**<`T`>(ifTrue: `T`, ifFalse: `T`, condition: `bool`): `T`<br />
+  Selects one of two pre-evaluated values depending on the condition.
+
+* **unreachable**(): `*`<br />
+  Emits an unreachable operation that results in a runtime error when executed. Both a statement and an expression of any type.
+
+Host operations
+---------------
+
+* **memory.size**(): `i32`<br />
+  Returns the current size of the memory in units of pages. One page is 64kb.
+
+* **memory.grow**(value: `i32`): `i32`<br />
+  Grows linear memory by a given unsigned delta of pages. One page is 64kb. Returns the previous size of the memory in units of pages or `-1` on failure. **Note** that calling `memory.grow` where a memory manager is present might break it.
+
+Other
+-----
+
+* **parseInt**(str: `string`, radix?: `i32`): `i64`<br />
+  Parses a string to a 64-bit integer. Returns `0` on invalid inputs unlike `NaN` in JS.
+
+* **parseFloat**(str: `string`): `f64`<br />
+  Parses a string to a 64-bit float. Returns `NaN` on invalid inputs.
+
+* **changetype**<`T`>(value: `*`): `T`<br />
+  Changes the type of a value to another one. Useful for casting class instances to their pointer values and vice-versa.
+
+* **assert**<`T`>(isTrueish: `T`, message?: `string`): `T`<br />
+  Traps if the specified value is not true-ish, otherwise returns the non-nullable value.
+
+* **unchecked**(expr: `*`): `*`<br />
+  Explicitly requests no bounds checks on the provided expression. Useful for array accesses.
+
+* **call_indirect**<`T`>(target: `u32`, ...args: `*[]`): `T`<br />
+  Emits a `call_indirect` instruction, calling the specified function in the function table by index with the specified arguments. Does result in a runtime error if the arguments do not match the called function.
+
+Decorators
+----------
+
+The following WebAssembly-specific operators can be used to annotate non-TS behavior:
+
+* **@global**<br />
+  Adds an element to the global scope.
+
+* **@inline**<br />
+  Forces inlining of a function.
+
+* **@external**([moduleName: `string`,] elementName: `string`)<br />
+  Changes the external name of a declared global or function.
+
+* **@operator**(token: `string`)<br />
+  Annotates a binary operator overload.
+
+  * **@operator.binary**(token: `string`)<br />
+    Same as `@operator`.
+
+  * **@operator.prefix**(token: `string`)<br />
+    Annotates a unary prefix operator overload.
+
+  * **@operator.postfix**(token: `string`)<br />
+    Annotates a unary postfix operator overload.

@@ -1,0 +1,23 @@
+---
+name: Debugging
+menu: Documentation
+order: 6
+route: /documentation/debugging
+---
+
+# Debugging
+
+Using source maps
+-----------------
+
+To enable source map support for your WebAssembly binary for example for more convenient error reporting or debugging, it is currently necessary to either:
+
+* Include the source map's *absolute* URL in the WebAssembly binary when instantiating a module from a buffer or
+* If the binary includes a *relative* URL, instantiate the WebAssembly binary with [WebAssembly.instantiateStreaming](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/instantiateStreaming)
+
+The exact source map URL included in the binary can be provided to `asc` as an argument to the `--sourceMap` parameter. Also note that WebAssembly source maps are not supported by all browsers, yet, but it is known that latest Firefox supports them.
+
+Articles
+--------
+
+* [Making Web Assembly Even Faster: Debugging Web Assembly Performance with AssemblyScript and a Gameboy Emulator](https://medium.com/@torch2424/making-web-assembly-even-faster-debugging-web-assembly-performance-with-assemblyscript-and-a-4d30cb6463f1) (Aaron Turner, March 2018)
