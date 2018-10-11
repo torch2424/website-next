@@ -3,7 +3,8 @@ function rgb2bgr(rgb) {
   return ((rgb >>> 16) & 0xff) | (rgb & 0xff00) | ((rgb & 0xff) << 16);
 }
 
-export function gameOfLife(canvasElement) {
+export function gameOfLife(canvasElement, wasmPath) {
+
   // Configuration
   const RGB_ALIVE = 0xd392e6;
   const RGB_DEAD = 0xa61b85;
@@ -19,23 +20,13 @@ export function gameOfLife(canvasElement) {
   var byteSize = (size + size) << 2; // input & output (here: 4b per cell)
   cnv.width = width;
   cnv.height = height;
-  cnv.style = `
-  image-rendering: optimizeSpeed;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: -o-crisp-edges;
-  image-rendering: optimize-contrast;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
-  -ms-interpolation-mode: nearest-neighbor;
-`;
   ctx.imageSmoothingEnabled = false;
   // Compute the size of and instantiate the module's memory
   var memory = new WebAssembly.Memory({
     initial: ((byteSize + 0xffff) & ~0xffff) >>> 16
   });
   // Fetch and instantiate the module
-  fetch("build/optimized.wasm")
+  fetch(wasmPath)
     .then(response => response.arrayBuffer())
     .then(buffer =>
       WebAssembly.instantiate(buffer, {
@@ -48,7 +39,8 @@ export function gameOfLife(canvasElement) {
           BGR_DEAD: rgb2bgr(RGB_DEAD) & ~1, // little endian, LSB must not be set
           BIT_ROT
         },
-        Math
+        Math: Math,
+        JSMath: Math
       })
     )
     .then(module => {
@@ -102,6 +94,6 @@ export function gameOfLife(canvasElement) {
     })
     .catch(err => {
       alert("Failed to load WASM: " + err.message + " (ad blocker, maybe?)");
-      console.log(err.stack);
+      console.log(err);
     });
 }

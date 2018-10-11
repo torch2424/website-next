@@ -3,6 +3,7 @@ import externalLinks from 'remark-external-links';
 
 const Assets = path.resolve(__dirname, 'assets');
 const Src    = path.resolve(__dirname, 'src');
+const Examples = path.resolve(__dirname, 'components/examples');
 
 export default {
   src: './docs/langs',
@@ -25,6 +26,7 @@ export default {
       '@images':     `${Assets}/images`,
       '@components': `${Src}/theme/components`,
       '@styles':     `${Src}/theme/styles`,
+      '@examples': `${Examples}`
     };
     return config;
   }
