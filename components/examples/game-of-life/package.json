@@ -1,0 +1,27 @@
+{
+  "name": "@assemblyscript/game-of-life-example",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "as:build:untouched": "npx asc assembly/index.ts -b build/untouched.wasm -t build/untouched.wat --use Math=JSMath --importMemory --sourceMap --validate --measure",
+    "as:build:optimized": "npx asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat -d build/optimized.d.ts --use Math=JSMath -O3 --importMemory --sourceMap --validate --noDebug --measure",
+    "as:build": "npm run as:build:untouched && npm run as:build:optimized",
+    "js:build": "npx rollup -c rollup.config.js --input index.js --file build/game-of-life.js --environment NAME:gameOfLife",
+    "server": "http-server . -o -c-1"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.0.0",
+    "assemblyscript": "github:AssemblyScript/assemblyscript",
+    "http-server": "^0.11.1",
+    "rollup": "^0.66.6",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-jsx": "^1.0.3",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-replace": "^2.1.0"
+  },
+  "dependencies": {
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2"
+  }
+}
