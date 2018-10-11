@@ -6,9 +6,8 @@
   "scripts": {
     "start": "docz dev",
     "build": "docz build",
-    "deploy": "gh-pages -d .docz/dist",
-
-    "predeploy": "yarn build"
+    "deploy": "echo next.assemblyscript.org > .docz/dist/CNAME && gh-pages -d .docz/dist",
+    "predeploy": "docz build"
   },
   "repository": {
     "type": "git",
@@ -33,6 +32,8 @@
   "homepage": "https://github.com/AssemblyScript/website#readme",
   "devDependencies": {
     "docz": "^0.12.5",
+    "gh-pages": "^2.0.1",
     "remark-external-links": "^3.0.0"
-  }
+  },
+  "dependencies": {}
 }
