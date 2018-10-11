@@ -6,7 +6,7 @@
   "scripts": {
     "start": "docz dev",
     "build": "docz build",
-    "deploy": "echo next.assemblyscript.org > .docz/dist/CNAME && gh-pages -d .docz/dist",
+    "deploy": "echo next.assemblyscript.org > .docz/dist/CNAME && gh-pages -d .docz/dist -r https://github.com/AssemblyScript/website-next",
     "predeploy": "docz build"
   },
   "repository": {
