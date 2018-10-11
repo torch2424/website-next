@@ -11,6 +11,7 @@ export default {
   title: 'AssemblyScript',
   description: 'AssemblyScript - A TypeScript to WebAssembly compiler 🚀',
   ordering: 'ascending',
+  hashRouter: true,
   propsParser: false,
   indexHtml: './index.html',
   htmlContext: {
