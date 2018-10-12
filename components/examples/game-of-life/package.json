@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "as:build:untouched": "npx asc assembly/index.ts -b build/untouched.wasm -t build/untouched.wat --use Math=JSMath --importMemory --sourceMap --validate --measure",
-    "as:build:optimized": "npx asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat -d build/optimized.d.ts --use Math=JSMath -O3 --importMemory --sourceMap --validate --noDebug --measure",
-    "as:build": "npm run as:build:untouched && npm run as:build:optimized",
+    "as:build": "npx asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat -d build/optimized.d.ts --use Math=JSMath -O3 --importMemory --sourceMap --validate --noDebug --measure",
     "js:build": "npx rollup -c rollup.config.js --input index.js --file build/game-of-life.js --environment NAME:gameOfLife",
     "server": "http-server . -o -c-1"
   },
