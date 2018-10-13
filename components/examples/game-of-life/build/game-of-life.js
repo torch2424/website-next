@@ -499,8 +499,7 @@
 	      // little endian, LSB must not be set
 	      BIT_ROT
 	    },
-	    Math,
-	    JSMath: Math
+	    Math
 	  })).then(module => {
 	    var exports = module.instance.exports; // Initialize the module with the universe's width and height
 

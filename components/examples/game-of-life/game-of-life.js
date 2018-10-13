@@ -39,8 +39,7 @@ export function gameOfLife(canvasElement, wasmPath) {
           BGR_DEAD: rgb2bgr(RGB_DEAD) & ~1, // little endian, LSB must not be set
           BIT_ROT
         },
-        Math,
-        JSMath: Math
+        Math
       })
     )
     .then(module => {
